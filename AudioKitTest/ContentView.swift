@@ -15,7 +15,8 @@ struct ContentView: View {
 //    var audioEngine = AudioEngine()
 //    @EnvironmentObject var audioEngine: AudioEngine
     @ObjectBinding var audioEngine: AudioEngine
-    
+    @State var title: String = "type here"
+
     var body: some View {
         VStack {
             RecordButton(audioEngine: audioEngine)
@@ -35,12 +36,14 @@ struct ContentView: View {
                         self.audioEngine.slowPlayer.load(audioFile:self.audioEngine.tape)
                         self.audioEngine.robotPlayer.load(audioFile:self.audioEngine.tape)
                         self.audioEngine.chorusPlayer.load(audioFile:self.audioEngine.tape)
+                
                         
                         if let _ = self.audioEngine.recorderPlayer.audioFile?.duration {
                             self.audioEngine.recorder.stop()
                             self.audioEngine.tape.exportAsynchronously(name: "TempTestFile.m4a",
                                                       baseDir: .documents,
-                                                      exportFormat: .m4a) {_, exportError in
+                                                      exportFormat: .m4a) { file, exportError in
+                                                        print(file?.directoryPath)
                                                         if let error = exportError {
                                                             AKLog("Export Failed \(error)")
                                                         } else {
@@ -67,6 +70,7 @@ struct ContentView: View {
             Button("chorus"){
                 self.audioEngine.chorusPlayer!.play()
             }
+            TextField("type here", text: $title)
         }
     }
 }
