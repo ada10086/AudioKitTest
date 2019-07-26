@@ -12,11 +12,11 @@ import AudioKitUI
 import Combine
 
 struct ContentView: View {
-//    var audioEngine = AudioEngine()
-//    @EnvironmentObject var audioEngine: AudioEngine
+    //    var audioEngine = AudioEngine()
+    //    @EnvironmentObject var audioEngine: AudioEngine
     @ObjectBinding var audioEngine: AudioEngine
     @State var title: String = "type here"
-
+    
     var body: some View {
         VStack {
             RecordButton(audioEngine: audioEngine)
@@ -26,31 +26,36 @@ struct ContentView: View {
                 } catch { AKLog("Errored recording.") }
             }
             Button("stop"){
-                        self.audioEngine.recorderPlayer.stop()
+                self.audioEngine.recorderPlayer.stop()
                 //        micBooster.gain = 0
-                        self.audioEngine.tape = self.audioEngine.recorder.audioFile!
-                        self.audioEngine.recorderPlayer.load(audioFile: self.audioEngine.tape)
-                        self.audioEngine.normalPlayer.load(audioFile:self.audioEngine.tape)
-                        self.audioEngine.echoPlayer.load(audioFile:self.audioEngine.tape)
-                        self.audioEngine.fastPlayer.load(audioFile:self.audioEngine.tape)
-                        self.audioEngine.slowPlayer.load(audioFile:self.audioEngine.tape)
-                        self.audioEngine.robotPlayer.load(audioFile:self.audioEngine.tape)
-                        self.audioEngine.chorusPlayer.load(audioFile:self.audioEngine.tape)
+                self.audioEngine.tape = self.audioEngine.recorder.audioFile!
+                self.audioEngine.recorderPlayer.load(audioFile: self.audioEngine.tape)
+                //                        self.audioEngine.normalPlayer.load(audioFile:self.audioEngine.tape)
+                //                        self.audioEngine.echoPlayer.load(audioFile:self.audioEngine.tape)
+                //                        self.audioEngine.fastPlayer.load(audioFile:self.audioEngine.tape)
+                //                        self.audioEngine.slowPlayer.load(audioFile:self.audioEngine.tape)
+                //                        self.audioEngine.robotPlayer.load(audioFile:self.audioEngine.tape)
+                //                        self.audioEngine.chorusPlayer.load(audioFile:self.audioEngine.tape)
                 
-                        
-                        if let _ = self.audioEngine.recorderPlayer.audioFile?.duration {
-                            self.audioEngine.recorder.stop()
-                            self.audioEngine.tape.exportAsynchronously(name: "TempTestFile.m4a",
-                                                      baseDir: .documents,
-                                                      exportFormat: .m4a) { file, exportError in
-                                                        print(file?.directoryPath)
-                                                        if let error = exportError {
-                                                            AKLog("Export Failed \(error)")
-                                                        } else {
-                                                            AKLog("Export succeeded")
-                                                        }
+                
+                if let _ = self.audioEngine.recorderPlayer.audioFile?.duration {
+                    self.audioEngine.recorder.stop()
+                    self.audioEngine.tape.exportAsynchronously(
+                        name: self.title + ".m4a",
+                        baseDir: .documents,
+                        exportFormat: .m4a) { file, exportError in
+                            if let error = exportError {
+                                AKLog("Export Failed \(error)")
+                            } else {
+                                AKLog("Export succeeded")
+                                
+                                self.audioEngine.recordedFileData = RecordedFileData(file: file!, id: UUID(), fileURL: file!.directoryPath, title: self.title + ".m4a")
+                                self.audioEngine.recordedFiles.append(self.audioEngine.recordedFileData!)
+                                print("audioFiles: \(self.audioEngine.recordedFiles)")
+                                try? self.audioEngine.normalPlayer.load(url: file!.directoryPath)
                             }
-                        }
+                    }
+                }
             }
             Button("play"){
                 self.audioEngine.normalPlayer!.play()
@@ -70,7 +75,16 @@ struct ContentView: View {
             Button("chorus"){
                 self.audioEngine.chorusPlayer!.play()
             }
-            TextField("type here", text: $title)
+            HStack {
+                Spacer()
+                TextField("type here", text: $title)
+            }
+            Button("save"){
+                
+            }
+//            if self.audioEngine.recordedFiles != nil {
+//                Button("")
+//            }
         }
     }
 }
@@ -85,9 +99,9 @@ struct ContentView_Previews: PreviewProvider {
 
 
 class AudioEngine: BindableObject {
-        
+    
     var willChange = PassthroughSubject<AudioEngine, Never>()
-
+    
     var file: AKAudioFile!{
         willSet {
             self.willChange.send(self)
@@ -96,21 +110,36 @@ class AudioEngine: BindableObject {
     
     var micMixer: AKMixer!
     var recorder: AKNodeRecorder!{
-            willSet {
-                self.willChange.send(self)
-            }
+        willSet {
+            self.willChange.send(self)
         }
+    }
     
     var recorderPlayer: AKPlayer!{
-            willSet {
-                self.willChange.send(self)
-            }
+        willSet {
+            self.willChange.send(self)
         }
-    var tape: AKAudioFile!{
-            willSet {
-                self.willChange.send(self)
-            }
+    }
+    
+    var tape: AKAudioFile! {
+        willSet {
+            self.willChange.send(self)
         }
+    }
+    
+    var recordedFileData: RecordedFileData? {
+        willSet {
+            self.willChange.send(self)
+        }
+    }
+    
+    var recordedFiles: [RecordedFileData] = [] {
+        willSet {
+            willChange.send(self)
+        }
+    }
+    
+    
     var micBooster: AKBooster!
     let mic = AKMicrophone()
     
@@ -138,7 +167,7 @@ class AudioEngine: BindableObject {
     init() {
         do {
             file = try AKAudioFile(readFileName: "hello.mp3")
-
+            
         } catch {
             AKLog("File Not Found")
             return
@@ -211,11 +240,11 @@ class AudioEngine: BindableObject {
     }
     
     func startAudioKit() {
-            do {
-                try AudioKit.start()
-            } catch {
-                AKLog("AudioKit did not start!")
-            }
+        do {
+            try AudioKit.start()
+        } catch {
+            AKLog("AudioKit did not start!")
+        }
     }
     
     func playingEnded() {
@@ -223,5 +252,13 @@ class AudioEngine: BindableObject {
             AKLog("Playing Ended")
         }
     }
-
+    
 }
+
+struct RecordedFileData {
+    var file: AKAudioFile
+    var id: UUID
+    var fileURL: URL
+    var title: String
+}
+
