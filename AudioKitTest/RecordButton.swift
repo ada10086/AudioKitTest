@@ -85,29 +85,29 @@ struct CircleButton : View {
                                     withAnimation(.empty) {
                                         self.arc.finalAngle = Angle(degrees: 270 + self.startTime.timeIntervalSinceNow * -36)
                                     }
-                                            self.audioEngine.recorderPlayer.stop()
-                                    //        micBooster.gain = 0
-                                            self.audioEngine.tape = self.audioEngine.recorder.audioFile!
-                                            self.audioEngine.recorderPlayer.load(audioFile: self.audioEngine.tape)
-                                            self.audioEngine.normalPlayer.load(audioFile:self.audioEngine.tape)
-                                            self.audioEngine.echoPlayer.load(audioFile:self.audioEngine.tape)
-                                            self.audioEngine.fastPlayer.load(audioFile:self.audioEngine.tape)
-                                            self.audioEngine.slowPlayer.load(audioFile:self.audioEngine.tape)
-                                            self.audioEngine.robotPlayer.load(audioFile:self.audioEngine.tape)
-                                            self.audioEngine.chorusPlayer.load(audioFile:self.audioEngine.tape)
-                                            
-                                            if let _ = self.audioEngine.recorderPlayer.audioFile?.duration {
-                                                self.audioEngine.recorder.stop()
-                                                self.audioEngine.tape.exportAsynchronously(name: "TempTestFile.m4a",
-                                                                          baseDir: .documents,
-                                                                          exportFormat: .m4a) {_, exportError in
-                                                                            if let error = exportError {
-                                                                                AKLog("Export Failed \(error)")
-                                                                            } else {
-                                                                                AKLog("Export succeeded")
-                                                                            }
-                                                }
-                                            }
+////                                            self.audioEngine.recorderPlayer.stop()
+//                                    //        micBooster.gain = 0
+//                                            self.audioEngine.tape = self.audioEngine.recorder.audioFile!
+////                                            self.audioEngine.recorderPlayer.load(audioFile: self.audioEngine.tape)
+//                                            self.audioEngine.normalPlayer.load(audioFile:self.audioEngine.tape)
+//                                            self.audioEngine.echoPlayer.load(audioFile:self.audioEngine.tape)
+//                                            self.audioEngine.fastPlayer.load(audioFile:self.audioEngine.tape)
+//                                            self.audioEngine.slowPlayer.load(audioFile:self.audioEngine.tape)
+//                                            self.audioEngine.robotPlayer.load(audioFile:self.audioEngine.tape)
+//                                            self.audioEngine.chorusPlayer.load(audioFile:self.audioEngine.tape)
+//                                            
+//                                            if let _ = self.audioEngine.normalPlayer.audioFile?.duration {
+//                                                self.audioEngine.recorder.stop()
+//                                                self.audioEngine.tape.exportAsynchronously(name: "TempTestFile.m4a",
+//                                                                          baseDir: .documents,
+//                                                                          exportFormat: .m4a) {_, exportError in
+//                                                                            if let error = exportError {
+//                                                                                AKLog("Export Failed \(error)")
+//                                                                            } else {
+//                                                                                AKLog("Export succeeded")
+//                                                                            }
+//                                                }
+//                                            }
                                 }
             }
         )
