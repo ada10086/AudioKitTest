@@ -73,9 +73,11 @@ struct ContentView: View {
                 
             Button("save"){
                 if let _ = self.audioEngine.recorder.audioFile?.duration {
-                    //export effectfile.wav
+                    
                     do {
-                        let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!.appendingPathComponent(self.title + ".wav") //cannot be m4a, not a codec
+                        //export .wav
+                        let id = UUID()
+                        let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!.appendingPathComponent(id.uuidString + ".wav") //cannot be m4a, not a codec
                         let format = AVAudioFormat(commonFormat: .pcmFormatFloat64, sampleRate: 44100, channels: 2, interleaved: true)!
                         let audioFile = try! AVAudioFile(forWriting: url, settings: format.settings, commonFormat: .pcmFormatFloat64, interleaved: true)
                         try AudioKit.renderToFile(audioFile, duration: self.audioEngine.activePlayer!.duration, prerender: {
@@ -84,10 +86,12 @@ struct ContentView: View {
                         })
                         print("audio file rendered")
                         
-                        self.audioEngine.recordedFileData = RecordedFileData(id: UUID(), fileURL: audioFile.directoryPath.appendingPathComponent(self.title + ".wav"), fileName: self.title + ".wav")
+                        //add data to recordedfiles array
+                        self.audioEngine.recordedFileData = RecordedFileData(id: id, fileURL: audioFile.directoryPath.appendingPathComponent(id.uuidString + ".wav"), title: self.title)
                         self.audioEngine.recordedFiles.append(self.audioEngine.recordedFileData!)
                         print("audioFiles: \(self.audioEngine.recordedFiles)")
                         
+                        //reset recorder, clear recorder audiofile
                         try self.audioEngine.recorder.reset()
 
                     } catch {
@@ -101,7 +105,7 @@ struct ContentView: View {
 //            }
             VStack{
                 ForEach(self.audioEngine.recordedFiles, id: \.self){ file in
-                    Button(file.fileName){
+                    Button(file.title){
                         print("url \(file.fileURL)")
                         try? self.audioEngine.effectPlayer!.load(url: file.fileURL)
                         self.audioEngine.effectPlayer!.play()
