@@ -36,7 +36,7 @@ struct ContentView: View {
                 self.audioEngine.robotPlayer.load(audioFile:self.audioEngine.tape)
                 self.audioEngine.chorusPlayer.load(audioFile:self.audioEngine.tape)
                 
-//                if let _ = self.audioEngine.normalPlayer.audioFile?.duration {
+                //export original recording file
                 if let _ = self.audioEngine.recorder.audioFile?.duration {
                     self.audioEngine.recorder.stop()
                     self.audioEngine.tape.exportAsynchronously(
@@ -66,64 +66,40 @@ struct ContentView: View {
 //                    AKLog("error loading url")
 //                }
 //            }
-
+            if self.audioEngine.recorder.audioFile?.duration != 0 {
             Button("play"){
                 self.audioEngine.normalPlayer!.play()
                 self.audioEngine.activePlayer = self.audioEngine.normalPlayer!
-                //                self.audioEngine.fileToSave = self.audioEngine.normalPlayer!.audioFile as? AKAudioFile
             }
             Button("echo"){
                 self.audioEngine.echoPlayer!.play()
                 self.audioEngine.activePlayer = self.audioEngine.echoPlayer!
-                //                self.audioEngine.fileToSave = self.audioEngine.echoPlayer!.audioFile as? AKAudioFile
-                
             }
             Button("fast"){
                 self.audioEngine.fastPlayer!.play()
                 self.audioEngine.activePlayer = self.audioEngine.fastPlayer!
-                //                self.audioEngine.fileToSave = self.audioEngine.fastPlayer!.audioFile as? AKAudioFile
             }
             Button("slow"){
                 self.audioEngine.slowPlayer!.play()
                 self.audioEngine.activePlayer = self.audioEngine.slowPlayer!
-                //                self.audioEngine.fileToSave = self.audioEngine.slowPlayer!.audioFile as? AKAudioFile
             }
             //            Button("robot"){
             //                self.audioEngine.robotPlayer!.play()
-            //                self.audioEngine.fileToSave = self.audioEngine.robotPlayer!.audioFile as? AKAudioFile
             //            }
             //            Button("chorus"){
             //                self.audioEngine.chorusPlayer!.play()
-            //                self.audioEngine.fileToSave = self.audioEngine.chorusPlayer!.audioFile as? AKAudioFile
             //            }
+            
             HStack {
                 Spacer()
                 TextField("type here", text: $title)
             }
+                
             Button("save"){
-//                if let _ = self.audioEngine.normalPlayer.audioFile?.duration {     //fix
                 if let _ = self.audioEngine.recorder.audioFile?.duration {
-
-                    //export original file.m4a
-                    //                    self.audioEngine.tape.exportAsynchronously(
-                    //                        name: self.title + ".m4a",
-                    //                        baseDir: .documents,
-                    //                        exportFormat: .m4a) { file, exportError in
-                    //                            if let error = exportError {
-                    //                                AKLog("Export Failed \(error)")
-                    //                            } else {
-                    //                                AKLog("Export succeeded")
-                    //
-                    //                                self.audioEngine.recordedFileData = RecordedFileData(file: file!, id: UUID(), fileURL: file!.directoryPath, title: self.title + ".m4a")
-                    //                                self.audioEngine.recordedFiles.append(self.audioEngine.recordedFileData!)
-                    //                                print("audioFiles: \(self.audioEngine.recordedFiles)")
-                    //                                try? self.audioEngine.normalPlayer.load(url: file!.directoryPath)
-                    //                            }
-                    //                    }
-                    
                     //export effect file.wav
                     do {
-                        let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!.appendingPathComponent("recorded.wav") //cannot be m4a, not a codec
+                        let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!.appendingPathComponent(self.title + ".wav") //cannot be m4a, not a codec
                         let format = AVAudioFormat(commonFormat: .pcmFormatFloat64, sampleRate: 44100, channels: 2, interleaved: true)!
                         let audioFile = try! AVAudioFile(forWriting: url, settings: format.settings, commonFormat: .pcmFormatFloat64, interleaved: true)
                         try AudioKit.renderToFile(audioFile, duration: self.audioEngine.activePlayer!.duration, prerender: {
@@ -131,16 +107,20 @@ struct ContentView: View {
                             self.audioEngine.activePlayer!.play()
                         })
                         print("audio file rendered")
-                        //self.audioEngine.recordedFileData = RecordedFileData(file: audioFile, id: UUID(), fileURL: audioFile.directoryPath, title: self.title + ".m4a")
-                        //self.audioEngine.recordedFiles.append(self.audioEngine.recordedFileData!)
-                        //print("audioFiles: \(self.audioEngine.recordedFiles)")
                         
+                        try self.audioEngine.recorder?.reset()
+                        print("recorder reset")
+//                        self.audioEngine.recordedFileData = RecordedFileData(file: audioFile, id: UUID(), fileURL: audioFile.directoryPath, fileName: self.title + ".wav")
+//                        self.audioEngine.recordedFiles.append(self.audioEngine.recordedFileData!)
+//                        print("audioFiles: \(self.audioEngine.recordedFiles)")
                     } catch {
                         print("error rendering", error)
                     }
+                    
                 }
             }
-            
+            }
+
         }
     }
 }
@@ -165,11 +145,7 @@ class AudioEngine: BindableObject {
     }
     
     var micMixer: AKMixer!
-    var recorder: AKNodeRecorder!{
-        willSet {
-            self.willChange.send(self)
-        }
-    }
+    var recorder: AKNodeRecorder!
     
     var tape: AKAudioFile! {
         willSet {
@@ -188,12 +164,6 @@ class AudioEngine: BindableObject {
             willChange.send(self)
         }
     }
-    
-    //    var fileToSave: AKAudioFile! {
-    //        willSet {
-    //                    self.willChange.send(self)
-    //                }
-    //    }
     
     var activePlayer: AKPlayer! {
         willSet {
@@ -313,9 +283,9 @@ class AudioEngine: BindableObject {
 }
 
 struct RecordedFileData {
-    var file: AKAudioFile
+    var file: AVAudioFile
     var id: UUID
     var fileURL: URL
-    var title: String
+    var fileName: String
 }
 
