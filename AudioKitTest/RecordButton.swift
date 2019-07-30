@@ -72,11 +72,18 @@ struct CircleButton : View {
                              pressing: { pressed in
                                 self.isPressed = pressed
                                 self.scale = pressed ? 1.1 : 1
-                                do {
-                                    try self.audioEngine.recorder.record()
-                                } catch { AKLog("Errored recording.") }
+                                print("recording1")
+//                                do {
+//                                    try self.audioEngine.recorder.reset()
+//                                    try self.audioEngine.recorder.record()
+//                                } catch { AKLog("Errored recording.") }
                                 if pressed {
+                                                                    do {
+                                                                        try self.audioEngine.recorder.reset()
+                                                                        try self.audioEngine.recorder.record()
+                                                                    } catch { AKLog("Errored recording.") }
                                     self.startTime = Date()
+                                    self.arc.finalAngle = Angle(degrees: 270)
                                     withAnimation(self.fill) {
                                         self.arc.finalAngle = Angle(degrees: 630)
                                     }
@@ -85,29 +92,28 @@ struct CircleButton : View {
                                     withAnimation(.empty) {
                                         self.arc.finalAngle = Angle(degrees: 270 + self.startTime.timeIntervalSinceNow * -36)
                                     }
-////                                            self.audioEngine.recorderPlayer.stop()
-//                                    //        micBooster.gain = 0
-//                                            self.audioEngine.tape = self.audioEngine.recorder.audioFile!
-////                                            self.audioEngine.recorderPlayer.load(audioFile: self.audioEngine.tape)
-//                                            self.audioEngine.normalPlayer.load(audioFile:self.audioEngine.tape)
-//                                            self.audioEngine.echoPlayer.load(audioFile:self.audioEngine.tape)
-//                                            self.audioEngine.fastPlayer.load(audioFile:self.audioEngine.tape)
-//                                            self.audioEngine.slowPlayer.load(audioFile:self.audioEngine.tape)
-//                                            self.audioEngine.robotPlayer.load(audioFile:self.audioEngine.tape)
-//                                            self.audioEngine.chorusPlayer.load(audioFile:self.audioEngine.tape)
-//                                            
-//                                            if let _ = self.audioEngine.normalPlayer.audioFile?.duration {
-//                                                self.audioEngine.recorder.stop()
-//                                                self.audioEngine.tape.exportAsynchronously(name: "TempTestFile.m4a",
-//                                                                          baseDir: .documents,
-//                                                                          exportFormat: .m4a) {_, exportError in
-//                                                                            if let error = exportError {
-//                                                                                AKLog("Export Failed \(error)")
-//                                                                            } else {
-//                                                                                AKLog("Export succeeded")
-//                                                                            }
-//                                                }
-//                                            }
+                                    
+                                    self.audioEngine.normalPlayer.load(audioFile: self.audioEngine.recorder.audioFile!)
+                                    self.audioEngine.echoPlayer.load(audioFile: self.audioEngine.recorder.audioFile!)
+                                    self.audioEngine.fastPlayer.load(audioFile: self.audioEngine.recorder.audioFile!)
+                                    self.audioEngine.slowPlayer.load(audioFile: self.audioEngine.recorder.audioFile!)
+                                    self.audioEngine.robotPlayer.load(audioFile: self.audioEngine.recorder.audioFile!)
+                                    self.audioEngine.chorusPlayer.load(audioFile: self.audioEngine.recorder.audioFile!)
+                                    
+                                    //export original recording file
+                                    if let _ = self.audioEngine.recorder.audioFile?.duration {
+                                        self.audioEngine.recorder.stop()
+                                        self.audioEngine.recorder.audioFile!.exportAsynchronously(
+                                            name: "tempRecording.wav",
+                                            baseDir: .documents,
+                                            exportFormat: .wav) { file, exportError in
+                                                if let error = exportError {
+                                                    AKLog("Export Failed \(error)")
+                                                } else {
+                                                    AKLog("Export succeeded")
+                                                }
+                                        }
+                                    }
                                 }
             }
         )
@@ -166,7 +172,7 @@ struct TrackPathView: View {
             .fill(Color.red)
     }
 }
-    
+
 
 //#if DEBUG
 //struct RecordButton_Previews: PreviewProvider {

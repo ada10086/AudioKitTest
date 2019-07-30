@@ -16,6 +16,7 @@
 		5037E9F822EA2DAD004CD125 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5037E9F722EA2DAD004CD125 /* Preview Assets.xcassets */; };
 		5037E9FB22EA2DAD004CD125 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5037E9F922EA2DAD004CD125 /* LaunchScreen.storyboard */; };
 		5037EA0322EA330F004CD125 /* RecordButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5037EA0222EA330F004CD125 /* RecordButton.swift */; };
+		5082904022F0C0CD00F46659 /* EffectButtons.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5082903F22F0C0CD00F46659 /* EffectButtons.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -29,6 +30,7 @@
 		5037E9FA22EA2DAD004CD125 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		5037E9FC22EA2DAD004CD125 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		5037EA0222EA330F004CD125 /* RecordButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordButton.swift; sourceTree = "<group>"; };
+		5082903F22F0C0CD00F46659 /* EffectButtons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = EffectButtons.swift; path = ../../../../System/Volumes/Data/Users/chuchujiang/AudioKitTest/AudioKitTest/EffectButtons.swift; sourceTree = "<group>"; };
 		965CFCBEC1C2DD0B585591A2 /* Pods_AudioKitTest.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_AudioKitTest.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		F0EED3F630B7DEFDC8EA371A /* Pods-AudioKitTest.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AudioKitTest.debug.xcconfig"; path = "Target Support Files/Pods-AudioKitTest/Pods-AudioKitTest.debug.xcconfig"; sourceTree = "<group>"; };
 		FFEE81BCBA86603DC5E3FF7E /* Pods-AudioKitTest.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AudioKitTest.release.xcconfig"; path = "Target Support Files/Pods-AudioKitTest/Pods-AudioKitTest.release.xcconfig"; sourceTree = "<group>"; };
@@ -88,6 +90,7 @@
 				5037E9EE22EA2DA9004CD125 /* AppDelegate.swift */,
 				5037E9F022EA2DA9004CD125 /* SceneDelegate.swift */,
 				5037E9F222EA2DA9004CD125 /* ContentView.swift */,
+				5082903F22F0C0CD00F46659 /* EffectButtons.swift */,
 				5037EA0222EA330F004CD125 /* RecordButton.swift */,
 				5037E9F422EA2DAD004CD125 /* Assets.xcassets */,
 				5037E9F922EA2DAD004CD125 /* LaunchScreen.storyboard */,
@@ -204,6 +207,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				5037EA0322EA330F004CD125 /* RecordButton.swift in Sources */,
+				5082904022F0C0CD00F46659 /* EffectButtons.swift in Sources */,
 				5037E9EF22EA2DA9004CD125 /* AppDelegate.swift in Sources */,
 				5037E9F122EA2DA9004CD125 /* SceneDelegate.swift in Sources */,
 				5037E9F322EA2DA9004CD125 /* ContentView.swift in Sources */,
