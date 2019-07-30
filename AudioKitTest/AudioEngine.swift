@@ -155,9 +155,7 @@ class AudioEngine: BindableObject {
 }
 
 struct RecordedFileData: Hashable {
-
-
-    var file: AVAudioFile
+//    var file: AVAudioFile
     var id: UUID
     var fileURL: URL
     var fileName: String

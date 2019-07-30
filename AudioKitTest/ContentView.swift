@@ -84,7 +84,7 @@ struct ContentView: View {
                         })
                         print("audio file rendered")
                         
-                        self.audioEngine.recordedFileData = RecordedFileData(file: audioFile, id: UUID(), fileURL: audioFile.directoryPath, fileName: self.title + ".wav")
+                        self.audioEngine.recordedFileData = RecordedFileData(id: UUID(), fileURL: audioFile.directoryPath.appendingPathComponent(self.title + ".wav"), fileName: self.title + ".wav")
                         self.audioEngine.recordedFiles.append(self.audioEngine.recordedFileData!)
                         print("audioFiles: \(self.audioEngine.recordedFiles)")
                         
@@ -99,11 +99,10 @@ struct ContentView: View {
             .font(.title)
 
 //            }
-            
-            Spacer()
             VStack{
                 ForEach(self.audioEngine.recordedFiles, id: \.self){ file in
                     Button(file.fileName){
+                        print("url \(file.fileURL)")
                         try? self.audioEngine.effectPlayer!.load(url: file.fileURL)
                         self.audioEngine.effectPlayer!.play()
                     }
