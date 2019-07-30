@@ -72,22 +72,21 @@ struct CircleButton : View {
                              pressing: { pressed in
                                 self.isPressed = pressed
                                 self.scale = pressed ? 1.1 : 1
-                                print("recording1")
-//                                do {
-//                                    try self.audioEngine.recorder.reset()
-//                                    try self.audioEngine.recorder.record()
-//                                } catch { AKLog("Errored recording.") }
+
                                 if pressed {
-                                                                    do {
-                                                                        try self.audioEngine.recorder.reset()
-                                                                        try self.audioEngine.recorder.record()
-                                                                    } catch { AKLog("Errored recording.") }
+                                    do {
+                                        try self.audioEngine.recorder.reset()
+                                        try self.audioEngine.recorder.record()
+                                    } catch { AKLog("Errored recording.") }
+                                    
                                     self.startTime = Date()
                                     self.arc.finalAngle = Angle(degrees: 270)
                                     withAnimation(self.fill) {
                                         self.arc.finalAngle = Angle(degrees: 630)
                                     }
+                                    
                                 } else {
+                                    
                                     print("elapsed: \(self.startTime.timeIntervalSinceNow * -1)")
                                     withAnimation(.empty) {
                                         self.arc.finalAngle = Angle(degrees: 270 + self.startTime.timeIntervalSinceNow * -36)
@@ -114,6 +113,7 @@ struct CircleButton : View {
                                                 }
                                         }
                                     }
+                                    
                                 }
             }
         )
