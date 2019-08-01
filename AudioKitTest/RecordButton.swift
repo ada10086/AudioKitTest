@@ -109,12 +109,12 @@ struct CircleButton : View {
                                         }
                                     }
                                     
+                                    //load effectPlayers with recorder audiofile
                                     for playerData in self.audioEngine.effectPlayers {
                                         playerData.player.load(audioFile: self.audioEngine.recorder.audioFile!)
                                     }
                                     
                                     self.recordingFinished = true
-                                    
                                 }
             }
         )
@@ -175,10 +175,3 @@ struct TrackPathView: View {
 }
 
 
-//#if DEBUG
-//struct RecordButton_Previews: PreviewProvider {
-//    static var previews: some View {
-//        RecordButton()
-//    }
-//}
-//#endif

@@ -27,12 +27,6 @@ class AudioEngine: BindableObject {
         }
     }
     
-//    var activePlayer: AKPlayer! {
-//        willSet {
-//            self.willChange.send(self)
-//        }
-//    }
-    
     var activePlayerData = PlayerData(effect: "normal") {
         willSet {
             self.willChange.send(self)
@@ -80,7 +74,7 @@ class AudioEngine: BindableObject {
         micMixer = AKMixer(mic)
         recorder = try? AKNodeRecorder(node: micMixer)
         
-          //echo
+        //echo
         echoDelay = AKDelay(echoPlayerData.player)
         echoDelay.time = 0.1
         echoDelay.feedback = 0.4
@@ -88,11 +82,11 @@ class AudioEngine: BindableObject {
         echoReverb = AKReverb(echoDelay)
         echoReverb.loadFactoryPreset(.cathedral)
         
-        //speedUp
+        //fast
         variSpeedFast = AKVariSpeed(fastPlayerData.player)
         variSpeedFast.rate = 1.7
         
-        //slowDown
+        //slow
         variSpeedSlow = AKVariSpeed(slowPlayerData.player)
         variSpeedSlow.rate = 0.7
         
