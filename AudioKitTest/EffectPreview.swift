@@ -17,6 +17,7 @@ struct EffectPreview: View {
     var body: some View {
         VStack{
             
+            //preview buttons
             ForEach(self.audioEngine.effectPlayers, id: \.self){ playerData in
                 Button(playerData.effect){
                     playerData.player.play()
@@ -29,65 +30,7 @@ struct EffectPreview: View {
                 .font(.title)
                 .foregroundColor(Color.white)
             }
-//            //preview buttons
-//            VStack {
-//                Button("play"){
-//                    self.audioEngine.normalPlayer!.play()
-//                    self.audioEngine.activePlayer = self.audioEngine.normalPlayer!
-//                }
-//                .frame(width: 90, height: 30, alignment: .center)
-//                .padding()
-//                .background(Color.black)
-//                .cornerRadius(5)
-//                
-//                Button("echo"){
-//                    self.audioEngine.echoPlayer!.play()
-//                    self.audioEngine.activePlayer = self.audioEngine.echoPlayer!
-//                }
-//                .frame(width: 90, height: 30, alignment: .center)
-//                .padding()
-//                .background(Color.black)
-//                .cornerRadius(5)
-//
-//                Button("fast"){
-//                    self.audioEngine.fastPlayer!.play()
-//                    self.audioEngine.activePlayer = self.audioEngine.fastPlayer!
-//                }
-//                .frame(width: 90, height: 30, alignment: .center)
-//                .padding()
-//                .background(Color.black)
-//                .cornerRadius(5)
-//
-//                Button("slow"){
-//                    self.audioEngine.slowPlayer!.play()
-//                    self.audioEngine.activePlayer = self.audioEngine.slowPlayer!
-//                }
-//                .frame(width: 90, height: 30, alignment: .center)
-//                .padding()
-//                .background(Color.black)
-//                .cornerRadius(5)
-//
-//                Button("robot"){
-//                    self.audioEngine.robotPlayer!.play()
-//                    self.audioEngine.activePlayer = self.audioEngine.robotPlayer!
-//                }
-//                .frame(width: 90, height: 30, alignment: .center)
-//                .padding()
-//                .background(Color.black)
-//                .cornerRadius(5)
-//
-//                Button("chorus"){
-//                    self.audioEngine.chorusPlayer!.play()
-//                    self.audioEngine.activePlayer = self.audioEngine.chorusPlayer!
-//                }
-//                .frame(width: 90, height: 30, alignment: .center)
-//                .padding()
-//                .background(Color.black)
-//                .cornerRadius(5)
-//            }
-//            .font(.title)
-//            .foregroundColor(Color.white)
-                        
+
             //save title
             HStack {
                 Spacer()

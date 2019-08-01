@@ -19,7 +19,6 @@ struct SavedAudioView: View {
                     print("url \(file.fileURL)")
                     try? self.audioEngine.recordedPlayer!.load(url: file.fileURL)
                     self.audioEngine.recordedPlayer!.play()
-                    print("effectPlayerDuration: \(self.audioEngine.recordedPlayer!.duration)")
                 }
                 .font(.title)
                 .foregroundColor(Color.white)
