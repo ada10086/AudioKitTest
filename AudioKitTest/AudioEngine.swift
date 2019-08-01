@@ -52,12 +52,12 @@ class AudioEngine: BindableObject {
     var chorus: AKChorus!
     
     //effect players
-    var normalPlayerData = PlayerData()
-    var echoPlayerData = PlayerData()
-    var fastPlayerData = PlayerData()
-    var slowPlayerData = PlayerData()
-    var robotPlayerData = PlayerData()
-    var chorusPlayerData = PlayerData()
+    var normalPlayerData = PlayerData(effect: "normal")
+    var echoPlayerData = PlayerData(effect: "echo")
+    var fastPlayerData = PlayerData(effect: "fast")
+    var slowPlayerData = PlayerData(effect: "slow")
+    var robotPlayerData = PlayerData(effect: "robot")
+    var chorusPlayerData = PlayerData(effect: "chorus")
     var effectPlayers : [PlayerData] = []
     
     //player for exported audio
@@ -74,11 +74,7 @@ class AudioEngine: BindableObject {
         micMixer = AKMixer(mic)
         recorder = try? AKNodeRecorder(node: micMixer)
         
-          //normal
-        normalPlayerData.effect = "normal"
-        
           //echo
-        echoPlayerData.effect = "echo"
         echoDelay = AKDelay(echoPlayerData.player)
         echoDelay.time = 0.1
         echoDelay.feedback = 0.4
@@ -87,17 +83,14 @@ class AudioEngine: BindableObject {
         echoReverb.loadFactoryPreset(.cathedral)
         
         //speedUp
-        fastPlayerData.effect = "fast"
         variSpeedFast = AKVariSpeed(fastPlayerData.player)
         variSpeedFast.rate = 1.7
         
         //slowDown
-        slowPlayerData.effect = "slow"
         variSpeedSlow = AKVariSpeed(slowPlayerData.player)
         variSpeedSlow.rate = 0.7
         
         //robot
-        robotPlayerData.effect = "robot"
         robotDelay = AKDelay(robotPlayerData.player)
         robotDelay.time = 0.015 // seconds
         robotDelay.lowPassCutoff = 17593 //Hz
@@ -105,7 +98,6 @@ class AudioEngine: BindableObject {
         robotDelay.dryWetMix = 0.47 // Normalized Value 0 - 1
         
         //chorus
-        chorusPlayerData.effect = "chorus"
         chorus = AKChorus(chorusPlayerData.player)
         chorus.feedback = 0.7
         chorus.depth = 0.5
@@ -151,10 +143,12 @@ struct RecordedFileData: Hashable {
 
 struct PlayerData: Hashable {
     var player: AKPlayer!
-    var effect = "effect"
+    var effect: String!
     //image
     
-    init(){
+    init(effect: String){
+        self.effect = effect
+        
         do {
             //file has to be present
             let myFile = try AKAudioFile(readFileName: "hello.mp3")
