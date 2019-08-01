@@ -27,7 +27,13 @@ class AudioEngine: BindableObject {
         }
     }
     
-    var activePlayer: AKPlayer! {
+//    var activePlayer: AKPlayer! {
+//        willSet {
+//            self.willChange.send(self)
+//        }
+//    }
+    
+    var activePlayerData = PlayerData(effect: "normal") {
         willSet {
             self.willChange.send(self)
         }
@@ -110,7 +116,7 @@ class AudioEngine: BindableObject {
         recordedPlayer.isLooping = false
         recordedPlayer.buffering = .always
         
-        activePlayer = normalPlayerData.player
+        activePlayerData = normalPlayerData
         
         //mixer
         mainMixer = AKMixer(normalPlayerData.player, echoReverb, variSpeedFast, variSpeedSlow, robotDelay, chorus, recordedPlayer)
@@ -138,7 +144,7 @@ struct RecordedFileData: Hashable {
     var id: UUID
     var fileURL: URL
     var title: String
-    //var effect
+    var effect: String
 }
 
 struct PlayerData: Hashable {

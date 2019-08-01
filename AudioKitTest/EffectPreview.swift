@@ -21,7 +21,7 @@ struct EffectPreview: View {
             ForEach(self.audioEngine.effectPlayers, id: \.self){ playerData in
                 Button(playerData.effect){
                     playerData.player.play()
-                    self.audioEngine.activePlayer = playerData.player
+                    self.audioEngine.activePlayerData = playerData
                 }
                 .frame(width: 90, height: 30, alignment: .center)
                 .padding()
@@ -51,15 +51,16 @@ struct EffectPreview: View {
                         let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!.appendingPathComponent(id.uuidString + ".wav")
                         let format = AVAudioFormat(commonFormat: .pcmFormatFloat64, sampleRate: 44100, channels: 2, interleaved: true)!
                         let audioFile = try! AVAudioFile(forWriting: url, settings: format.settings, commonFormat: .pcmFormatFloat64, interleaved: true)
-                        try AudioKit.renderToFile(audioFile, duration: self.audioEngine.activePlayer!.duration + 1, prerender: {
-                            self.audioEngine.activePlayer!.load(audioFile: self.audioEngine.recorder.audioFile!)
-                            self.audioEngine.activePlayer!.play()
+                        try AudioKit.renderToFile(audioFile, duration:
+                            //fix duration!!
+                            self.audioEngine.activePlayerData.player.duration + 1, prerender: {
+                            self.audioEngine.activePlayerData.player.load(audioFile: self.audioEngine.recorder.audioFile!)
+                            self.audioEngine.activePlayerData.player.play()
                         })
-                        print("duration: \(self.audioEngine.activePlayer!.duration)")
                         print("audio file rendered")
                         
                         //add data to recordedfiles array
-                        self.audioEngine.recordedFileData = RecordedFileData(id: id, fileURL: audioFile.directoryPath.appendingPathComponent(id.uuidString + ".wav"), title: self.title)
+                        self.audioEngine.recordedFileData = RecordedFileData(id: id, fileURL: audioFile.directoryPath.appendingPathComponent(id.uuidString + ".wav"), title: self.title, effect: self.audioEngine.activePlayerData.effect)
                         self.audioEngine.recordedFiles.append(self.audioEngine.recordedFileData!)
                         print("audioFiles: \(self.audioEngine.recordedFiles)")
                         
