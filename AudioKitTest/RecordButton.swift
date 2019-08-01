@@ -94,24 +94,6 @@ struct CircleButton : View {
                                         self.arc.finalAngle = Angle(degrees: 270 + self.startTime.timeIntervalSinceNow * -36)
                                     }
                                     
-                                    for playerData in self.audioEngine.effectPlayers {
-                                        playerData.player.load(audioFile: self.audioEngine.recorder.audioFile!)
-                                    }
-                                    
-//                                    self.audioEngine.normalPlayerData.player.load(audioFile: self.audioEngine.recorder.audioFile!)
-//                                    self.audioEngine.echoPlayerData.player.load(audioFile: self.audioEngine.recorder.audioFile!)
-//                                    self.audioEngine.fastPlayerData.player.load(audioFile: self.audioEngine.recorder.audioFile!)
-//                                    self.audioEngine.slowPlayerData.player.load(audioFile: self.audioEngine.recorder.audioFile!)
-//                                    self.audioEngine.robotPlayerData.player.load(audioFile: self.audioEngine.recorder.audioFile!)
-//                                    self.audioEngine.chorusPlayerData.player.load(audioFile: self.audioEngine.recorder.audioFile!)
-                                    
-//                                    self.audioEngine.normalPlayer.load(audioFile: self.audioEngine.recorder.audioFile!)
-//                                    self.audioEngine.echoPlayer.load(audioFile: self.audioEngine.recorder.audioFile!)
-//                                    self.audioEngine.fastPlayer.load(audioFile: self.audioEngine.recorder.audioFile!)
-//                                    self.audioEngine.slowPlayer.load(audioFile: self.audioEngine.recorder.audioFile!)
-//                                    self.audioEngine.robotPlayer.load(audioFile: self.audioEngine.recorder.audioFile!)
-//                                    self.audioEngine.chorusPlayer.load(audioFile: self.audioEngine.recorder.audioFile!)
-                                    
                                     //export original recording file
                                     if let _ = self.audioEngine.recorder.audioFile?.duration {
                                         self.audioEngine.recorder.stop()
@@ -126,6 +108,11 @@ struct CircleButton : View {
                                                 }
                                         }
                                     }
+                                    
+                                    for playerData in self.audioEngine.effectPlayers {
+                                        playerData.player.load(audioFile: self.audioEngine.recorder.audioFile!)
+                                    }
+                                    
                                     self.recordingFinished = true
                                     
                                 }

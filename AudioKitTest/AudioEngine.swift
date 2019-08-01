@@ -15,11 +15,6 @@ class AudioEngine: BindableObject {
     
     var willChange = PassthroughSubject<AudioEngine, Never>()
     
-    var file: AKAudioFile!
-    
-    var micMixer: AKMixer!
-    var recorder: AKNodeRecorder!
-    
     var recordedFileData: RecordedFileData? {
         willSet {
             self.willChange.send(self)
@@ -38,33 +33,25 @@ class AudioEngine: BindableObject {
         }
     }
     
+    var file: AKAudioFile!
+    
+    //mic
+    var micMixer: AKMixer!
+    var recorder: AKNodeRecorder!
     var micBooster: AKBooster!
     let mic = AKMicrophone()
+    var mainMixer: AKMixer!
+    var booster: AKBooster!
     
-//    var normalPlayer: AKPlayer!
-    
-//    var echoPlayer: AKPlayer!
+    //effect nodes
     var echoDelay: AKDelay!
     var echoReverb: AKReverb!
-    
-//    var fastPlayer: AKPlayer!
     var variSpeedFast: AKVariSpeed!
-    
-//    var slowPlayer: AKPlayer!
     var variSpeedSlow: AKVariSpeed!
-    
-//    var robotPlayer: AKPlayer!
     var robotDelay: AKDelay!
-    
-//    var chorusPlayer: AKPlayer!
     var chorus: AKChorus!
     
-//    var normalPlayerData: PlayerData!
-//    var echoPlayerData: PlayerData!
-//    var fastPlayerData: PlayerData!
-//    var slowPlayerData: PlayerData!
-//    var robotPlayerData: PlayerData!
-//    var chorusPlayerData: PlayerData!
+    //effect players
     var normalPlayerData = PlayerData()
     var echoPlayerData = PlayerData()
     var fastPlayerData = PlayerData()
@@ -72,18 +59,13 @@ class AudioEngine: BindableObject {
     var robotPlayerData = PlayerData()
     var chorusPlayerData = PlayerData()
     var effectPlayers : [PlayerData] = []
-
-    var mainMixer: AKMixer!
-    var booster: AKBooster!
     
+    //player for exported audio
     var recordedPlayer: AKPlayer!
     
     init() {
         do {
-//            let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!.appendingPathComponent("tempRecording.wav")
-//            file = try AKAudioFile(forReading: url)
             file = try AKAudioFile(readFileName: "hello.mp3")
-            
         } catch {
             AKLog("File Not Found")
             return
@@ -93,16 +75,9 @@ class AudioEngine: BindableObject {
         recorder = try? AKNodeRecorder(node: micMixer)
         
           //normal
-//        normalPlayer = AKPlayer(audioFile: file)
-//        normalPlayer.isLooping = false
-//        normalPlayer.buffering = .always
         normalPlayerData.effect = "normal"
         
           //echo
-//        echoPlayer = AKPlayer(audioFile: file)
-//        echoPlayer.isLooping = false
-//        echoPlayer.buffering = .always
-//        echoDelay = AKDelay(echoPlayer)
         echoPlayerData.effect = "echo"
         echoDelay = AKDelay(echoPlayerData.player)
         echoDelay.time = 0.1
@@ -112,28 +87,16 @@ class AudioEngine: BindableObject {
         echoReverb.loadFactoryPreset(.cathedral)
         
         //speedUp
-//        fastPlayer = AKPlayer(audioFile: file)
-//        fastPlayer.isLooping = false
-//        fastPlayer.buffering = .always
-//        variSpeedFast = AKVariSpeed(fastPlayer)
         fastPlayerData.effect = "fast"
         variSpeedFast = AKVariSpeed(fastPlayerData.player)
         variSpeedFast.rate = 1.7
         
         //slowDown
-//        slowPlayer = AKPlayer(audioFile: file)
-//        slowPlayer.isLooping = false
-//        slowPlayer.buffering = .always
-//        variSpeedSlow = AKVariSpeed(slowPlayer)
         slowPlayerData.effect = "slow"
         variSpeedSlow = AKVariSpeed(slowPlayerData.player)
         variSpeedSlow.rate = 0.7
         
         //robot
-//        robotPlayer = AKPlayer(audioFile: file)
-//        robotPlayer.isLooping = false
-//        robotPlayer.buffering = .always
-//        robotDelay = AKDelay(robotPlayer)
         robotPlayerData.effect = "robot"
         robotDelay = AKDelay(robotPlayerData.player)
         robotDelay.time = 0.015 // seconds
@@ -142,10 +105,6 @@ class AudioEngine: BindableObject {
         robotDelay.dryWetMix = 0.47 // Normalized Value 0 - 1
         
         //chorus
-//        chorusPlayer = AKPlayer(audioFile: file)
-//        chorusPlayer.isLooping = false
-//        chorusPlayer.buffering = .always
-//        chorus = AKChorus(chorusPlayer)
         chorusPlayerData.effect = "chorus"
         chorus = AKChorus(chorusPlayerData.player)
         chorus.feedback = 0.7
@@ -193,18 +152,13 @@ struct RecordedFileData: Hashable {
 struct PlayerData: Hashable {
     var player: AKPlayer!
     var effect = "effect"
-    
-//    static func ==(lhs: PlayerData, rhs: PlayerData) -> Bool {
-//        return lhs.player == rhs.player && lhs.effect == rhs.effect
-//    }
+    //image
     
     init(){
         do {
-            
-            let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!.appendingPathComponent("tempRecording.wav")
-            let myFile = try AKAudioFile(forReading: url)
+            //file has to be present
+            let myFile = try AKAudioFile(readFileName: "hello.mp3")
             player = AKPlayer(audioFile: myFile)
-
         } catch {
             AKLog("File Not Found")
             return
