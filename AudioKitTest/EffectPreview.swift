@@ -25,7 +25,7 @@ struct EffectPreview: View {
                 }
                 .frame(width: 90, height: 30, alignment: .center)
                 .padding()
-                .background(Color.black)
+                .background(Color.black)  //if active, change color
                 .cornerRadius(5)
                 .font(.title)
                 .foregroundColor(Color.white)
