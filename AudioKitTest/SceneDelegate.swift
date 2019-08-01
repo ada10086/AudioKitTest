@@ -24,7 +24,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             let window = UIWindow(windowScene: windowScene)
             window.rootViewController = UIHostingController(
                 rootView: ContentView(audioEngine: AudioEngine())
-//                    .environmentObject(AudioEngine())
             )
             self.window = window
             window.makeKeyAndVisible()

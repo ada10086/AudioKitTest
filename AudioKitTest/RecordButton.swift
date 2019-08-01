@@ -11,6 +11,7 @@ import AudioKit
 
 struct RecordButton : View {
     @ObjectBinding var audioEngine: AudioEngine
+    @Binding var recordingFinished: Bool
     
     var lineWidth: CGFloat = 5
     var buttonRadius: CGFloat = 25
@@ -21,7 +22,7 @@ struct RecordButton : View {
         
         ZStack{
             //center circle button
-            CircleButton(audioEngine: audioEngine, arc: $arc, radius: buttonRadius)
+            CircleButton(audioEngine: audioEngine, recordingFinished: $recordingFinished, arc: $arc, radius: buttonRadius)
             
             //circular path
             Circle()
@@ -38,6 +39,7 @@ struct RecordButton : View {
 
 struct CircleButton : View {
     @ObjectBinding var audioEngine: AudioEngine
+    @Binding var recordingFinished: Bool
     
     @Binding var arc: MyArc
     var radius: CGFloat
@@ -47,21 +49,21 @@ struct CircleButton : View {
     @State private var isPressed : Bool = false
     
     var pulse: Animation {
-        Animation.basic(duration: 0.8, curve: .easeInOut)
+        Animation.easeInOut(duration: 0.8)
             .repeatForever(autoreverses:true)
     }
     
     var pulseReturn: Animation {
-        Animation.basic(duration: 0.4, curve: .easeInOut)
+        Animation.easeInOut(duration: 0.4)
             .repeatCount(1)
     }
     
     var fill: Animation {
-        Animation.basic(duration: 10, curve: .linear)
+        Animation.linear(duration: 10)
     }
     
     var body: some View {
-        
+
         return Circle()
             .fill(Color.gray)
             .frame(width: radius*2, height: radius*2, alignment: .center)
@@ -88,16 +90,27 @@ struct CircleButton : View {
                                 } else {
                                     
                                     print("elapsed: \(self.startTime.timeIntervalSinceNow * -1)")
-                                    withAnimation(.empty) {
+                                    withAnimation() {
                                         self.arc.finalAngle = Angle(degrees: 270 + self.startTime.timeIntervalSinceNow * -36)
                                     }
                                     
-                                    self.audioEngine.normalPlayer.load(audioFile: self.audioEngine.recorder.audioFile!)
-                                    self.audioEngine.echoPlayer.load(audioFile: self.audioEngine.recorder.audioFile!)
-                                    self.audioEngine.fastPlayer.load(audioFile: self.audioEngine.recorder.audioFile!)
-                                    self.audioEngine.slowPlayer.load(audioFile: self.audioEngine.recorder.audioFile!)
-                                    self.audioEngine.robotPlayer.load(audioFile: self.audioEngine.recorder.audioFile!)
-                                    self.audioEngine.chorusPlayer.load(audioFile: self.audioEngine.recorder.audioFile!)
+                                    for playerData in self.audioEngine.effectPlayers {
+                                        playerData.player.load(audioFile: self.audioEngine.recorder.audioFile!)
+                                    }
+                                    
+//                                    self.audioEngine.normalPlayerData.player.load(audioFile: self.audioEngine.recorder.audioFile!)
+//                                    self.audioEngine.echoPlayerData.player.load(audioFile: self.audioEngine.recorder.audioFile!)
+//                                    self.audioEngine.fastPlayerData.player.load(audioFile: self.audioEngine.recorder.audioFile!)
+//                                    self.audioEngine.slowPlayerData.player.load(audioFile: self.audioEngine.recorder.audioFile!)
+//                                    self.audioEngine.robotPlayerData.player.load(audioFile: self.audioEngine.recorder.audioFile!)
+//                                    self.audioEngine.chorusPlayerData.player.load(audioFile: self.audioEngine.recorder.audioFile!)
+                                    
+//                                    self.audioEngine.normalPlayer.load(audioFile: self.audioEngine.recorder.audioFile!)
+//                                    self.audioEngine.echoPlayer.load(audioFile: self.audioEngine.recorder.audioFile!)
+//                                    self.audioEngine.fastPlayer.load(audioFile: self.audioEngine.recorder.audioFile!)
+//                                    self.audioEngine.slowPlayer.load(audioFile: self.audioEngine.recorder.audioFile!)
+//                                    self.audioEngine.robotPlayer.load(audioFile: self.audioEngine.recorder.audioFile!)
+//                                    self.audioEngine.chorusPlayer.load(audioFile: self.audioEngine.recorder.audioFile!)
                                     
                                     //export original recording file
                                     if let _ = self.audioEngine.recorder.audioFile?.duration {
@@ -113,6 +126,7 @@ struct CircleButton : View {
                                                 }
                                         }
                                     }
+                                    self.recordingFinished = true
                                     
                                 }
             }
