@@ -11,7 +11,7 @@ import AudioKit
 import SwiftUI
 import Combine
 
-class AudioEngine: BindableObject {
+class AudioEngine: ObservableObject {
     
     var willChange = PassthroughSubject<AudioEngine, Never>()
     

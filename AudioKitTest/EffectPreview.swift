@@ -10,7 +10,7 @@ import SwiftUI
 import AudioKit
 
 struct EffectPreview: View {
-    @ObjectBinding var audioEngine: AudioEngine
+    @ObservedObject var audioEngine: AudioEngine
     @Binding var audioSaved: Bool
     @State var title: String = "my audio"
     
@@ -35,7 +35,7 @@ struct EffectPreview: View {
             HStack {
                 Spacer()
                 TextField("type your title here", text: $title)
-                    .textFieldStyle(.roundedBorder)
+//                    .textFieldStyle(.roundedBorder)
                     .multilineTextAlignment(.center)
                     .font(.title)
                 Spacer()

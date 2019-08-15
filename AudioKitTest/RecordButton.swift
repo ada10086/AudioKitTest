@@ -10,7 +10,7 @@ import SwiftUI
 import AudioKit
 
 struct RecordButton : View {
-    @ObjectBinding var audioEngine: AudioEngine
+    @ObservedObject var audioEngine: AudioEngine
     @Binding var recordingFinished: Bool
     
     var lineWidth: CGFloat = 5
@@ -38,14 +38,14 @@ struct RecordButton : View {
 }
 
 struct CircleButton : View {
-    @ObjectBinding var audioEngine: AudioEngine
+    @ObservedObject var audioEngine: AudioEngine
     @Binding var recordingFinished: Bool
     
     @Binding var arc: MyArc
     var radius: CGFloat
     
     @State private var startTime : Date = Date()
-    @State private var scale : Length = 1
+    @State private var scale : CGFloat = 1
     @State private var isPressed : Bool = false
     
     var pulse: Animation {
@@ -70,54 +70,103 @@ struct CircleButton : View {
             //.animation(nil)
             .scaleEffect(scale)
             .animation(isPressed ? pulse : pulseReturn)
-            .longPressAction(minimumDuration: 10, {},
-                             pressing: { pressed in
-                                self.isPressed = pressed
-                                self.scale = pressed ? 1.1 : 1
+            .onLongPressGesture(minimumDuration: 10, pressing: { pressed in
+                self.isPressed = pressed
+                self.scale = pressed ? 1.1 : 1
 
-                                if pressed {
-                                    do {
-                                        try self.audioEngine.recorder.reset()
-                                        try self.audioEngine.recorder.record()
-                                    } catch { AKLog("Errored recording.") }
-                                    
-                                    self.startTime = Date()
-                                    self.arc.finalAngle = Angle(degrees: 270)
-                                    withAnimation(self.fill) {
-                                        self.arc.finalAngle = Angle(degrees: 630)
-                                    }
-                                    
+                if pressed {
+                    do {
+                        try self.audioEngine.recorder.reset()
+                        try self.audioEngine.recorder.record()
+                    } catch { AKLog("Errored recording.") }
+                    
+                    self.startTime = Date()
+                    self.arc.finalAngle = Angle(degrees: 270)
+                    withAnimation(self.fill) {
+                        self.arc.finalAngle = Angle(degrees: 630)
+                    }
+                    
+                } else {
+                    
+                    print("elapsed: \(self.startTime.timeIntervalSinceNow * -1)")
+                    withAnimation() {
+                        self.arc.finalAngle = Angle(degrees: 270 + self.startTime.timeIntervalSinceNow * -36)
+                    }
+                    
+                    //export original recording file
+                    if let _ = self.audioEngine.recorder.audioFile?.duration {
+                        self.audioEngine.recorder.stop()
+                        self.audioEngine.recorder.audioFile!.exportAsynchronously(
+                            name: "tempRecording.wav",
+                            baseDir: .documents,
+                            exportFormat: .wav) { file, exportError in
+                                if let error = exportError {
+                                    AKLog("Export Failed \(error)")
                                 } else {
-                                    
-                                    print("elapsed: \(self.startTime.timeIntervalSinceNow * -1)")
-                                    withAnimation() {
-                                        self.arc.finalAngle = Angle(degrees: 270 + self.startTime.timeIntervalSinceNow * -36)
-                                    }
-                                    
-                                    //export original recording file
-                                    if let _ = self.audioEngine.recorder.audioFile?.duration {
-                                        self.audioEngine.recorder.stop()
-                                        self.audioEngine.recorder.audioFile!.exportAsynchronously(
-                                            name: "tempRecording.wav",
-                                            baseDir: .documents,
-                                            exportFormat: .wav) { file, exportError in
-                                                if let error = exportError {
-                                                    AKLog("Export Failed \(error)")
-                                                } else {
-                                                    AKLog("Export succeeded")
-                                                }
-                                        }
-                                    }
-                                    
-                                    //load effectPlayers with recorder audiofile
-                                    for playerData in self.audioEngine.effectPlayers {
-                                        playerData.player.load(audioFile: self.audioEngine.recorder.audioFile!)
-                                    }
-                                    
-                                    self.recordingFinished = true
+                                    AKLog("Export succeeded")
                                 }
-            }
-        )
+                        }
+                    }
+                    
+                    //load effectPlayers with recorder audiofile
+                    for playerData in self.audioEngine.effectPlayers {
+                        playerData.player.load(audioFile: self.audioEngine.recorder.audioFile!)
+                    }
+                    
+                    self.recordingFinished = true
+                }
+            }, perform: {})
+            
+            
+            
+//            .longPressAction(minimumDuration: 10, {},
+//                             pressing: { pressed in
+//                                self.isPressed = pressed
+//                                self.scale = pressed ? 1.1 : 1
+//
+//                                if pressed {
+//                                    do {
+//                                        try self.audioEngine.recorder.reset()
+//                                        try self.audioEngine.recorder.record()
+//                                    } catch { AKLog("Errored recording.") }
+//                                    
+//                                    self.startTime = Date()
+//                                    self.arc.finalAngle = Angle(degrees: 270)
+//                                    withAnimation(self.fill) {
+//                                        self.arc.finalAngle = Angle(degrees: 630)
+//                                    }
+//                                    
+//                                } else {
+//                                    
+//                                    print("elapsed: \(self.startTime.timeIntervalSinceNow * -1)")
+//                                    withAnimation() {
+//                                        self.arc.finalAngle = Angle(degrees: 270 + self.startTime.timeIntervalSinceNow * -36)
+//                                    }
+//                                    
+//                                    //export original recording file
+//                                    if let _ = self.audioEngine.recorder.audioFile?.duration {
+//                                        self.audioEngine.recorder.stop()
+//                                        self.audioEngine.recorder.audioFile!.exportAsynchronously(
+//                                            name: "tempRecording.wav",
+//                                            baseDir: .documents,
+//                                            exportFormat: .wav) { file, exportError in
+//                                                if let error = exportError {
+//                                                    AKLog("Export Failed \(error)")
+//                                                } else {
+//                                                    AKLog("Export succeeded")
+//                                                }
+//                                        }
+//                                    }
+//                                    
+//                                    //load effectPlayers with recorder audiofile
+//                                    for playerData in self.audioEngine.effectPlayers {
+//                                        playerData.player.load(audioFile: self.audioEngine.recorder.audioFile!)
+//                                    }
+//                                    
+//                                    self.recordingFinished = true
+//                                }
+//            }
+//        )
     }
 }
 
@@ -143,16 +192,20 @@ extension MyArc: Animatable {
 
 
 struct TrackPathShape: Shape {
+    
     var arc: MyArc
     var radius: CGFloat
     
-    init(_ arc: MyArc, _ radius:CGFloat) {self.arc = arc
-        self.radius = radius}
-    
+    init(_ arc: MyArc, _ radius:CGFloat) {
+        self.arc = arc
+        self.radius = radius
+        
+    }
+
     func path(in rect: CGRect) -> Path {
         var path = Path()
         //change center to be frame center
-        path.addArc(center: CGPoint(x:radius, y:radius), radius: radius, startAngle: arc.startAngle, endAngle: arc.finalAngle, clockwise: false)
+        path.addArc(center: CGPoint(x:20, y:20), radius: 20, startAngle: Angle(degrees:0), endAngle: Angle(degrees:30), clockwise: false)
         return path
     }
     
@@ -162,6 +215,30 @@ struct TrackPathShape: Shape {
     }
 }
 
+//struct TrackPathShape: Shape {
+//
+//    var arc: MyArc
+//    var radius: CGFloat
+//
+//    init(_ arc: MyArc, _ radius:CGFloat) {
+//        self.arc = arc
+//        self.radius = radius
+//
+//    }
+//
+//    func path(in rect: CGRect) -> Path {
+//        var path = Path()
+//        //change center to be frame center
+//        path.addArc(center: CGPoint(x:radius, y:radius), radius: radius, startAngle: arc.startAngle, endAngle: arc.finalAngle, clockwise: false)
+//        return path
+//    }
+//
+//    var animatableData: MyArc.AnimatableData {
+//        get{arc.animatableData}
+//        set{arc.animatableData = newValue}
+//    }
+//}
+
 struct TrackPathView: View {
     var arc: MyArc
     var lineWidth: CGFloat
@@ -169,7 +246,7 @@ struct TrackPathView: View {
     
     var body: some View {
         TrackPathShape(arc, radius)
-            .stroke(style: .init(lineWidth: lineWidth, lineCap: .round, lineJoin: .miter, miterLimit: 5, dash:[Length](), dashPhase: 0))
+            .stroke(style: .init(lineWidth: lineWidth, lineCap: .round, lineJoin: .miter, miterLimit: 5, dash:[CGFloat](), dashPhase: 0))
             .fill(Color.red)
     }
 }

@@ -10,7 +10,7 @@ import SwiftUI
 import AudioKit
 
 struct SavedAudioView: View {
-    @ObjectBinding var audioEngine: AudioEngine
+    @ObservedObject var audioEngine: AudioEngine
     
     var body: some View {
         VStack{
