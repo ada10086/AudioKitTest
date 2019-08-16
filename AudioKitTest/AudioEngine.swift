@@ -39,12 +39,6 @@ class AudioEngine: ObservableObject {
             self.willChange.send(self)
         }
     }
-    
-    var trackerAmplitude: Double! {
-        willSet {
-            self.willChange.send(self)
-        }
-    }
 
 //    let amplitudeSubject = PassthroughSubject<Double, Never>()
     
@@ -132,11 +126,7 @@ class AudioEngine: ObservableObject {
         tracker = AKFrequencyTracker(micMixer)
         silence = AKBooster(tracker, gain: 0)
         tracker.stop()
-        trackerAmplitude = 0
         
-        withAnimation(Animation.easeInOut){
-            trackerAmplitude = tracker.amplitude
-        }
         //mixer
         ///have to wire everything to mixer--> output before AudioKit.start, cannot rewire on the go
         mainMixer = AKMixer(normalPlayerData.player, echoReverb, variSpeedFast, variSpeedSlow, robotDelay, chorus, recordedPlayer, silence)
@@ -147,13 +137,7 @@ class AudioEngine: ObservableObject {
         
         AKPlaygroundLoop(every: 0.1) {
 //            print(self.tracker.amplitude)
-//            self.amplitudeSubject.send(self.tracker.amplitude)
         }
-        
-//        Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true){ timer in
-//            self.myTimer += 0.1
-//            print("myTimer: \(self.myTimer)")
-//        }
         
     }
     

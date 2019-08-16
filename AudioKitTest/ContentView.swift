@@ -15,14 +15,7 @@ struct ContentView: View {
     @ObservedObject var audioEngine: AudioEngine
     @State var recordingFinished: Bool = false
     @State var audioSaved: Bool = false
-    @State private var scale : CGFloat = 1
-    @State private var isPressed : Bool = false
-    
-    var amplitudeCanceller: Cancellable?
-    
-//    var animation: Animation {
-//        Animation.linear(duration: 10)
-//    }
+//    var amplitudeCanceller: Cancellable?
     
     var body: some View {
         
@@ -32,7 +25,6 @@ struct ContentView: View {
                 RecordButton(audioEngine: audioEngine, recordingFinished: $recordingFinished)
                 
                 Button("record"){
-                    self.isPressed = true
                     ///start microphone amplitude tracker
                     self.audioEngine.tracker.start()
                     do {
@@ -43,7 +35,6 @@ struct ContentView: View {
                 .font(.title)
                 
                 Button("stop"){
-                    self.isPressed = false
                     ///stop microphone amplitude tracker
                     self.audioEngine.tracker.stop()
                     ///timer doesn't stop

@@ -35,26 +35,10 @@ struct RecordButton : View {
                 .fill(Color.blue)
                 .frame(width: 70, height: 70)
                 ///amplitude not updating
-                // .scaleEffect(self.isPressed ? 1 + 10 * CGFloat(self.audioEngine.trackerAmplitude) : 1)
                 // .scaleEffect(self.isPressed ? 1 + 10 * CGFloat(self.audioEngine.tracker.amplitude) : 1)
                 .scaleEffect(self.isPressed ? self.scale : 1)
                 .animation(Animation.easeInOut)
-                //                .animation(self.isPressed ? Animation.easeInOut : nil)
-            
-//                .onLongPressGesture(minimumDuration: 10, pressing: { pressed in
-//                    self.isPressed = pressed
-//                    if pressed {
-//                        //                                    Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true){ timer in
-//                        //                                            self.myRadius.endRadius = 100 * CGFloat(self.audioEngine.tracker.amplitude)
-//                        //                                            print("contentView amplitude: \(self.audioEngine.tracker.amplitude)")
-//                        //                                        }
-//                        //                                    }
-//
-//                        //                                    timer.fire()
-//                    } else {
-//                        //                                    timer.invalidate()
-//                    }
-//                }, perform: {})
+                //.animation(self.isPressed ? Animation.easeInOut : nil)
             
             //center circle button
             CircleButton(audioEngine: audioEngine, recordingFinished: $recordingFinished, endTrim: $endTrim, isPressed: $isPressed, radius: buttonRadius)
@@ -84,7 +68,6 @@ struct CircleButton : View {
     
     @State private var startTime : Date = Date()
     @State private var scale : CGFloat = 1
-//    @State private var isPressed : Bool = false
 
     var pulse: Animation {
         Animation.easeInOut(duration: 0.8)
