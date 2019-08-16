@@ -10,6 +10,7 @@ import Foundation
 import AudioKit
 import SwiftUI
 import Combine
+import AudioKitUI
 
 class AudioEngine: ObservableObject {
     
@@ -33,6 +34,14 @@ class AudioEngine: ObservableObject {
         }
     }
     
+    var tracker: AKFrequencyTracker! {
+        willSet {
+            self.willChange.send(self)
+        }
+    }
+
+//    let amplitudeSubject = PassthroughSubject<Double, Never>()
+    
     var file: AKAudioFile!
     
     //mic
@@ -40,8 +49,6 @@ class AudioEngine: ObservableObject {
     var recorder: AKNodeRecorder!
     var micBooster: AKBooster!
     let mic = AKMicrophone()
-    var mainMixer: AKMixer!
-    var booster: AKBooster!
     
     //effect nodes
     var echoDelay: AKDelay!
@@ -63,6 +70,10 @@ class AudioEngine: ObservableObject {
     //player for exported audio
     var recordedPlayer: AKPlayer!
     
+    var silence: AKBooster!
+    var mainMixer: AKMixer!
+    var booster: AKBooster!
+
     init() {
         do {
             file = try AKAudioFile(readFileName: "hello.mp3")
@@ -112,11 +123,28 @@ class AudioEngine: ObservableObject {
         
         activePlayerData = normalPlayerData
         
+        tracker = AKFrequencyTracker(micMixer)
+        silence = AKBooster(tracker, gain: 0)
+        tracker.stop()
+
         //mixer
-        mainMixer = AKMixer(normalPlayerData.player, echoReverb, variSpeedFast, variSpeedSlow, robotDelay, chorus, recordedPlayer)
+        ///have to wire everything to mixer--> output before AudioKit.start, cannot rewire on the go
+        mainMixer = AKMixer(normalPlayerData.player, echoReverb, variSpeedFast, variSpeedSlow, robotDelay, chorus, recordedPlayer, silence)
         booster = AKBooster(mainMixer)
         AudioKit.output = booster
+        
         startAudioKit()
+        
+        AKPlaygroundLoop(every: 0.1) {
+//            print(self.tracker.amplitude)
+//            self.amplitudeSubject.send(self.tracker.amplitude)
+        }
+        
+//        Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true){ timer in
+//            self.myTimer += 0.1
+//            print("myTimer: \(self.myTimer)")
+//        }
+        
     }
     
     func startAudioKit() {
