@@ -25,38 +25,11 @@ struct ContentView: View {
 //    }
     
     var body: some View {
-        //use timer to receive amplitude and update state variable
-        //how to stop timer?
-        var timer = Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true){ timer in
-            self.scale = 1 + 10 * CGFloat(self.audioEngine.tracker.amplitude)
-            print("contentView amplitude: \(self.audioEngine.tracker.amplitude)")
-        }
         
         return VStack {
-            if !recordingFinished {
-//                RecordButton(audioEngine: audioEngine, recordingFinished: $recordingFinished)
-                Circle()
-                .fill(Color.red)
-                .frame(width: 50, height: 50, alignment: .center)
-                    ///amplitude not updating
-//                .scaleEffect(self.isPressed ? 1 + 10 * CGFloat(self.audioEngine.tracker.amplitude) : 1)
-                .scaleEffect(self.isPressed ? self.scale : 1)
-                .animation(Animation.easeInOut)
-//                .animation(self.isPressed ? Animation.easeInOut : nil)
-                .onLongPressGesture(minimumDuration: 10, pressing: { pressed in
-                                self.isPressed = pressed
-                                if pressed {
-//                                    Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true){ timer in
-//                                            self.myRadius.endRadius = 100 * CGFloat(self.audioEngine.tracker.amplitude)
-//                                            print("contentView amplitude: \(self.audioEngine.tracker.amplitude)")
-//                                        }
-//                                    }
 
-//                                    timer.fire()
-                                } else {
-//                                    timer.invalidate()
-                                }
-                            }, perform: {})
+            if !recordingFinished {
+                RecordButton(audioEngine: audioEngine, recordingFinished: $recordingFinished)
                 
                 Button("record"){
                     self.isPressed = true
@@ -74,7 +47,7 @@ struct ContentView: View {
                     ///stop microphone amplitude tracker
                     self.audioEngine.tracker.stop()
                     ///timer doesn't stop
-                    timer.invalidate()
+//                    timer.invalidate()
                     print("recorderDuration\(self.audioEngine.recorder.audioFile!.duration)")
                     
                     //export original recording file
