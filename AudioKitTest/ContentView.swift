@@ -26,6 +26,7 @@ struct ContentView: View {
     
     var body: some View {
         //use timer to receive amplitude and update state variable
+        //how to stop timer?
         var timer = Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true){ timer in
             self.scale = 1 + 10 * CGFloat(self.audioEngine.tracker.amplitude)
             print("contentView amplitude: \(self.audioEngine.tracker.amplitude)")
@@ -72,6 +73,8 @@ struct ContentView: View {
                     self.isPressed = false
                     ///stop microphone amplitude tracker
                     self.audioEngine.tracker.stop()
+                    ///timer doesn't stop
+                    timer.invalidate()
                     print("recorderDuration\(self.audioEngine.recorder.audioFile!.duration)")
                     
                     //export original recording file
