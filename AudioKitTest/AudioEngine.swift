@@ -8,47 +8,22 @@
 
 import Foundation
 import AudioKit
-import SwiftUI
 import Combine
 import AudioKitUI
 
 class AudioEngine: ObservableObject {
     
-    var willChange = PassthroughSubject<AudioEngine, Never>()
-    
-    var recordedFileData: RecordedFileData? {
-        willSet {
-            self.willChange.send(self)
-        }
-    }
-    
-    var recordedFiles: [RecordedFileData] = [] {
-        willSet {
-            willChange.send(self)
-        }
-    }
-    
-    var activePlayerData = PlayerData(effect: "normal") {
-        willSet {
-            self.willChange.send(self)
-        }
-    }
-    
-    var tracker: AKFrequencyTracker! {
-        willSet {
-            self.willChange.send(self)
-        }
-    }
-
-//    let amplitudeSubject = PassthroughSubject<Double, Never>()
-    
-    var file: AKAudioFile!
-    
+    @Published var recordedFileData: RecordedFileData? = nil
+    @Published var recordedFiles: [RecordedFileData] = []
+    @Published var activePlayerData = PlayerData(effect: "normal")
+    @Published var amplitude: Double = 0
+            
     //mic
+    let mic = AKMicrophone()
     var micMixer: AKMixer!
     var recorder: AKNodeRecorder!
-    var micBooster: AKBooster!
-    let mic = AKMicrophone()
+    var tracker: AKFrequencyTracker!
+    var silence: AKBooster!
     
     //effect nodes
     var echoDelay: AKDelay!
@@ -58,7 +33,10 @@ class AudioEngine: ObservableObject {
     var robotDelay: AKDelay!
     var chorus: AKChorus!
     
-    //effect players
+    var booster: AKBooster!
+    var mainMixer: AKMixer!
+    
+    //data storing effect players
     var normalPlayerData = PlayerData(effect: "normal")
     var echoPlayerData = PlayerData(effect: "echo")
     var fastPlayerData = PlayerData(effect: "fast")
@@ -67,23 +45,17 @@ class AudioEngine: ObservableObject {
     var chorusPlayerData = PlayerData(effect: "chorus")
     var effectPlayers : [PlayerData] = []
     
-    //player for exported audio
+    //player for saved audio
     var recordedPlayer: AKPlayer!
     
-    var silence: AKBooster!
-    var mainMixer: AKMixer!
-    var booster: AKBooster!
 
     init() {
-        do {
-            file = try AKAudioFile(readFileName: "hello.mp3")
-        } catch {
-            AKLog("File Not Found")
-            return
-        }
-        
+        //mic
         micMixer = AKMixer(mic)
         recorder = try? AKNodeRecorder(node: micMixer)
+        tracker = AKFrequencyTracker(micMixer)
+        tracker.stop()
+        silence = AKBooster(tracker, gain: 0)
         
         //echo
         echoDelay = AKDelay(echoPlayerData.player)
@@ -116,19 +88,13 @@ class AudioEngine: ObservableObject {
         chorus.frequency = 8
         
         effectPlayers = [normalPlayerData, echoPlayerData, fastPlayerData, slowPlayerData, robotPlayerData, chorusPlayerData]
-        
-        recordedPlayer = AKPlayer(audioFile: file)
+        activePlayerData = normalPlayerData
+
+        recordedPlayer = AKPlayer()
         recordedPlayer.isLooping = false
         recordedPlayer.buffering = .always
         
-        activePlayerData = normalPlayerData
-        
-        tracker = AKFrequencyTracker(micMixer)
-        silence = AKBooster(tracker, gain: 0)
-        tracker.stop()
-        
-        //mixer
-        ///have to wire everything to mixer--> output before AudioKit.start, cannot rewire on the go
+        ///have to wire everything to mixer--> output before AudioKit.start(), cannot rewire on the go
         mainMixer = AKMixer(normalPlayerData.player, echoReverb, variSpeedFast, variSpeedSlow, robotDelay, chorus, recordedPlayer, silence)
         booster = AKBooster(mainMixer)
         AudioKit.output = booster
@@ -136,9 +102,11 @@ class AudioEngine: ObservableObject {
         startAudioKit()
         
         AKPlaygroundLoop(every: 0.1) {
-//            print(self.tracker.amplitude)
+            if self.tracker.isStarted{
+                self.amplitude = self.tracker.amplitude
+                print("audioengine tracker amplitude: \(self.amplitude)")
+            }
         }
-        
     }
     
     func startAudioKit() {
@@ -146,12 +114,6 @@ class AudioEngine: ObservableObject {
             try AudioKit.start()
         } catch {
             AKLog("AudioKit did not start!")
-        }
-    }
-    
-    func playingEnded() {
-        DispatchQueue.main.async {
-            AKLog("Playing Ended")
         }
     }
 }
@@ -165,20 +127,12 @@ struct RecordedFileData: Hashable {
 
 struct PlayerData: Hashable {
     var player: AKPlayer!
-    var effect: String!
+    var effect: String!  //for button texts
     //image
     
     init(effect: String){
         self.effect = effect
-        
-        do {
-            //file has to be present
-            let myFile = try AKAudioFile(readFileName: "hello.mp3")
-            player = AKPlayer(audioFile: myFile)
-        } catch {
-            AKLog("File Not Found")
-            return
-        }
+        player = AKPlayer()
         
         player.isLooping = false
         player.buffering = .always

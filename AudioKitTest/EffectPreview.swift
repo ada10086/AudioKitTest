@@ -17,21 +17,31 @@ struct EffectPreview: View {
     var body: some View {
         VStack{
             
-            //preview buttons
+            //preview effect buttons
             ForEach(self.audioEngine.effectPlayers, id: \.self){ playerData in
+                
                 Button(playerData.effect){
-                    playerData.player.play()
+
+                    //stop previously selected player if it's still playing
+                    for playerData in self.audioEngine.effectPlayers {
+                        if playerData.player.isPlaying {
+                            playerData.player.stop()
+                        }
+                    }
+                    
                     self.audioEngine.activePlayerData = playerData
+                    playerData.player.play()
+                    
                 }
                 .frame(width: 90, height: 30, alignment: .center)
                 .padding()
-                .background(Color.black)  //if active, change color
+                .background(self.audioEngine.activePlayerData == playerData ? Color.red : Color.black)  //if active, change color to red
                 .cornerRadius(5)
                 .font(.title)
                 .foregroundColor(Color.white)
             }
 
-            //save title
+            //save audio title
             HStack {
                 Spacer()
                 TextField("type your title here", text: $title)
@@ -46,13 +56,13 @@ struct EffectPreview: View {
                 if let _ = self.audioEngine.recorder.audioFile?.duration {
                     
                     do {
-                        //export .wav
+                        //export audio file with applied effect .caf
                         let id = UUID()
-                        let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!.appendingPathComponent(id.uuidString + ".wav")
-                        let format = AVAudioFormat(commonFormat: .pcmFormatFloat64, sampleRate: 44100, channels: 2, interleaved: true)!
-                        let audioFile = try! AVAudioFile(forWriting: url, settings: format.settings, commonFormat: .pcmFormatFloat64, interleaved: true)
+                        let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!.appendingPathComponent(id.uuidString + ".caf")
+                        let format = AVAudioFormat(commonFormat: .pcmFormatFloat32, sampleRate: 44100, channels: 2, interleaved: false)!
+                        let audioFile = try! AVAudioFile(forWriting: url, settings: format.settings, commonFormat: .pcmFormatFloat32, interleaved: false)
                         try AudioKit.renderToFile(audioFile, duration:
-                            //fix duration!!
+                            ///duration needs fixing!
                             self.audioEngine.activePlayerData.player.duration + 1, prerender: {
                             self.audioEngine.activePlayerData.player.load(audioFile: self.audioEngine.recorder.audioFile!)
                             self.audioEngine.activePlayerData.player.play()
@@ -60,7 +70,7 @@ struct EffectPreview: View {
                         print("audio file rendered")
                         
                         //add data to recordedfiles array
-                        self.audioEngine.recordedFileData = RecordedFileData(id: id, fileURL: audioFile.directoryPath.appendingPathComponent(id.uuidString + ".wav"), title: self.title, effect: self.audioEngine.activePlayerData.effect)
+                        self.audioEngine.recordedFileData = RecordedFileData(id: id, fileURL: audioFile.directoryPath.appendingPathComponent(id.uuidString + ".caf"), title: self.title, effect: self.audioEngine.activePlayerData.effect)
                         self.audioEngine.recordedFiles.append(self.audioEngine.recordedFileData!)
                         print("audioFiles: \(self.audioEngine.recordedFiles)")
                         

@@ -8,45 +8,38 @@
 
 import SwiftUI
 import AudioKit
+import Combine
 
 struct RecordButton : View {
     @ObservedObject var audioEngine: AudioEngine
     @Binding var recordingFinished: Bool
+    @State var isPressed : Bool = false
+    @State var endTrim : CGFloat = 0
     
     var lineWidth: CGFloat = 5
     var buttonRadius: CGFloat = 25
     var trackPathRadius: CGFloat = 40
-    @State var isPressed : Bool = false
-    @State var endTrim : CGFloat = 0
-    @State var scale : CGFloat = 1
 
     var body: some View {
         
-        //use timer to receive amplitude and update state variable
-        //how to stop timer?
-        var timer = Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true){ timer in
-            self.scale = 1 + 10 * CGFloat(self.audioEngine.tracker.amplitude)
-            print("contentView amplitude: \(self.audioEngine.tracker.amplitude)")
-        }
-        
         return ZStack{
+            
             //visulizer
             Circle()
                 .fill(Color.blue)
-                .frame(width: 70, height: 70)
-                ///amplitude not updating
-                // .scaleEffect(self.isPressed ? 1 + 10 * CGFloat(self.audioEngine.tracker.amplitude) : 1)
-                .scaleEffect(self.isPressed ? self.scale : 1)
+                .frame(width: 100, height: 100)
+                .scaleEffect(self.isPressed ? 1 + 10 * CGFloat(self.audioEngine.amplitude) : 1)
                 .animation(Animation.easeInOut)
-                //.animation(self.isPressed ? Animation.easeInOut : nil)
             
             //center circle button
             CircleButton(audioEngine: audioEngine, recordingFinished: $recordingFinished, endTrim: $endTrim, isPressed: $isPressed, radius: buttonRadius)
+            
             //background path
             Circle()
                 .trim(from:0, to:1)
                 .stroke(Color.gray, lineWidth: lineWidth)
                 .frame(width: trackPathRadius*2, height: trackPathRadius*2)
+            
             //track path
             Circle()
                 .trim(from: 0, to: self.endTrim)
@@ -88,7 +81,6 @@ struct CircleButton : View {
         return Circle()
             .fill(Color.gray)
             .frame(width: radius*2, height: radius*2, alignment: .center)
-            //.animation(nil)
             .scaleEffect(scale)
             .animation(isPressed ? pulse : pulseReturn)
             .onLongPressGesture(minimumDuration: 10, pressing: { pressed in
@@ -111,22 +103,20 @@ struct CircleButton : View {
                     
                 } else {
                     print("elapsed: \(self.startTime.timeIntervalSinceNow * -1)")
-                    withAnimation() {
-                        self.endTrim = CGFloat(self.startTime.timeIntervalSinceNow * -1/10)
-                    }
+//                    withAnimation() {
+//                        self.endTrim = CGFloat(self.startTime.timeIntervalSinceNow * -1/10)
+//                    }
                     
                     ///stop microphone amplitude tracker
                     self.audioEngine.tracker.stop()
-                    ///timer doesn't stop
-                    //timer.invalidate()
                     
-                    //export original recording file
+                    //export original recording
                     if let _ = self.audioEngine.recorder.audioFile?.duration {
                         self.audioEngine.recorder.stop()
                         self.audioEngine.recorder.audioFile!.exportAsynchronously(
-                            name: "tempRecording.wav",
+                            name: "tempRecording.caf",
                             baseDir: .documents,
-                            exportFormat: .wav) { file, exportError in
+                            exportFormat: .caf) { file, exportError in
                                 if let error = exportError {
                                     AKLog("Export Failed \(error)")
                                 } else {
@@ -135,7 +125,7 @@ struct CircleButton : View {
                         }
                     }
                     
-                    //load effectPlayers with recorder audiofile
+                    //load effectPlayers with orinigal recording
                     for playerData in self.audioEngine.effectPlayers {
                         playerData.player.load(audioFile: self.audioEngine.recorder.audioFile!)
                     }

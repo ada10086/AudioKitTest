@@ -15,7 +15,6 @@ struct ContentView: View {
     @ObservedObject var audioEngine: AudioEngine
     @State var recordingFinished: Bool = false
     @State var audioSaved: Bool = false
-//    var amplitudeCanceller: Cancellable?
     
     var body: some View {
         
@@ -37,17 +36,15 @@ struct ContentView: View {
                 Button("stop"){
                     ///stop microphone amplitude tracker
                     self.audioEngine.tracker.stop()
-                    ///timer doesn't stop
-//                    timer.invalidate()
                     print("recorderDuration\(self.audioEngine.recorder.audioFile!.duration)")
                     
-                    //export original recording file
+                    //export original recording file 
                     if let _ = self.audioEngine.recorder.audioFile?.duration {
                         self.audioEngine.recorder.stop()
                         self.audioEngine.recorder.audioFile!.exportAsynchronously(
-                            name: "tempRecording.wav",
+                            name: "tempRecording.caf",
                             baseDir: .documents,
-                            exportFormat: .wav) { file, exportError in
+                            exportFormat: .caf) { file, exportError in
                                 if let error = exportError {
                                     AKLog("Export Failed \(error)")
                                 } else {
